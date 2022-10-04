@@ -20,6 +20,8 @@ SET default_with_oids = false;
 DROP TABLE IF EXISTS statuses CASCADE;
 DROP TABLE IF EXISTS boards CASCADE;
 DROP TABLE IF EXISTS cards;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS archive;
 
 ---
 --- create tables
@@ -27,12 +29,14 @@ DROP TABLE IF EXISTS cards;
 
 CREATE TABLE statuses (
     id       SERIAL PRIMARY KEY     NOT NULL,
-    title    VARCHAR(200)           NOT NULL
+    title    VARCHAR(200)           NOT NULL,
+    board_id integer                NOT NULL
 );
 
 CREATE TABLE boards (
     id          SERIAL PRIMARY KEY  NOT NULL,
-    title       VARCHAR(200)        NOT NULL
+    title       VARCHAR(200)        NOT NULL,
+    owner       text                NOT NULL
 );
 
 CREATE TABLE cards (
@@ -43,30 +47,50 @@ CREATE TABLE cards (
     card_order  INTEGER             NOT NULL
 );
 
+CREATE TABLE users (
+    id          SERIAL PRIMARY KEY  NOT NULL,
+    email       VARCHAR (200)       NOT NULL,
+    username    VARCHAR (200)       NOT NULL,
+    password    text                NOT NULL
+);
+
+CREATE TABLE archive (
+    id          INTEGER PRIMARY KEY  NOT NULL,
+    board_id    INTEGER             NOT NULL,
+    status_id   INTEGER             NOT NULL,
+    title       VARCHAR (200)       NOT NULL,
+    card_order  INTEGER             NOT NULL
+);
+
 ---
 --- insert data
 ---
 
-INSERT INTO statuses(title) VALUES ('new');
-INSERT INTO statuses(title) VALUES ('in progress');
-INSERT INTO statuses(title) VALUES ('testing');
-INSERT INTO statuses(title) VALUES ('done');
+INSERT INTO statuses(title,board_id) VALUES ('new',1);
+INSERT INTO statuses(title,board_id) VALUES ('new',2);
+INSERT INTO statuses(title,board_id) VALUES ('in progress',1);
+INSERT INTO statuses(title,board_id) VALUES ('in progress',2);
+INSERT INTO statuses(title,board_id) VALUES ('testing',1);
+INSERT INTO statuses(title,board_id) VALUES ('testing',2);
+INSERT INTO statuses(title,board_id) VALUES ('done',1);
+INSERT INTO statuses(title,board_id) VALUES ('done',2);
 
-INSERT INTO boards(title) VALUES ('Board 1');
-INSERT INTO boards(title) VALUES ('Board 2');
+
+INSERT INTO boards(title,owner) VALUES ('Board 1','public');
+INSERT INTO boards(title,owner) VALUES ('Board 2', 'public');
 
 INSERT INTO cards VALUES (nextval('cards_id_seq'), 1, 1, 'new card 1', 1);
 INSERT INTO cards VALUES (nextval('cards_id_seq'), 1, 1, 'new card 2', 2);
-INSERT INTO cards VALUES (nextval('cards_id_seq'), 1, 2, 'in progress card', 1);
-INSERT INTO cards VALUES (nextval('cards_id_seq'), 1, 3, 'planning', 1);
-INSERT INTO cards VALUES (nextval('cards_id_seq'), 1, 4, 'done card 1', 1);
-INSERT INTO cards VALUES (nextval('cards_id_seq'), 1, 4, 'done card 1', 2);
-INSERT INTO cards VALUES (nextval('cards_id_seq'), 2, 1, 'new card 1', 1);
-INSERT INTO cards VALUES (nextval('cards_id_seq'), 2, 1, 'new card 2', 2);
-INSERT INTO cards VALUES (nextval('cards_id_seq'), 2, 2, 'in progress card', 1);
-INSERT INTO cards VALUES (nextval('cards_id_seq'), 2, 3, 'planning', 1);
-INSERT INTO cards VALUES (nextval('cards_id_seq'), 2, 4, 'done card 1', 1);
-INSERT INTO cards VALUES (nextval('cards_id_seq'), 2, 4, 'done card 1', 2);
+INSERT INTO cards VALUES (nextval('cards_id_seq'), 1, 3, 'in progress card', 1);
+INSERT INTO cards VALUES (nextval('cards_id_seq'), 1, 5, 'planning', 1);
+INSERT INTO cards VALUES (nextval('cards_id_seq'), 1, 7, 'done card 1', 1);
+INSERT INTO cards VALUES (nextval('cards_id_seq'), 1, 7, 'done card 1', 2);
+INSERT INTO cards VALUES (nextval('cards_id_seq'), 2, 2, 'new card 1', 1);
+INSERT INTO cards VALUES (nextval('cards_id_seq'), 2, 2, 'new card 2', 2);
+INSERT INTO cards VALUES (nextval('cards_id_seq'), 2, 4, 'in progress card', 1);
+INSERT INTO cards VALUES (nextval('cards_id_seq'), 2, 6, 'planning', 1);
+INSERT INTO cards VALUES (nextval('cards_id_seq'), 2, 8, 'done card 1', 1);
+INSERT INTO cards VALUES (nextval('cards_id_seq'), 2, 8, 'done card 1', 2);
 
 ---
 --- add constraints
@@ -77,3 +101,4 @@ ALTER TABLE ONLY cards
 
 ALTER TABLE ONLY cards
     ADD CONSTRAINT fk_cards_status_id FOREIGN KEY (status_id) REFERENCES statuses(id);
+
